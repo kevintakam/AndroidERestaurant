@@ -64,6 +64,7 @@ dependencies {
     implementation ("androidx.compose.material:material-icons-extended:x.x.x")
     implementation("com.google.android.material:material:1.9.0")
     implementation ("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     testImplementation("junit:junit:4.13.2")
     implementation ("com.android.volley:volley:1.2.1")
     implementation ("com.google.code.gson:gson:2.10.1")

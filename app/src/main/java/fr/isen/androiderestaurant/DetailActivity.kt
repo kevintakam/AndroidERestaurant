@@ -40,23 +40,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.*
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material.icons.filled.ShoppingCart
-
-
+import androidx.compose.ui.res.painterResource
+import fr.isen.androiderestaurant.basket.Basket
+import fr.isen.androiderestaurant.basket.BasketActivity
+import android.content.Intent
+import kotlin.math.max
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import android.widget.Toast
 class DetailActivity : ComponentActivity() {
-
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val dish = intent.getSerializableExtra(DetailActivity.DISH_EXTRA_KEY)  as? Dish
         val imageUri = intent.getStringExtra(DetailActivity.IMAGE_URI_EXTRA_KEY)
 
-
         setContent {
+            val context = LocalContext.current
+            val count = remember {
+                mutableIntStateOf(1)
+            }
+
             Column (
                 modifier = Modifier
                     .padding(bottom=60.dp)
             ){
                 Header()
-
 
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -74,7 +84,10 @@ class DetailActivity : ComponentActivity() {
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     IconButton(
-                        onClick = {  },
+                        onClick = {
+                            val intent = Intent(context, BasketActivity::class.java)
+                            context.startActivity(intent)
+                        },
                         colors = IconButtonColors( contentColor = Color.White,containerColor = Color.Red,disabledContainerColor = Color.Gray, disabledContentColor = Color.Gray)
                     ) {
                         Icon(
@@ -89,15 +102,19 @@ class DetailActivity : ComponentActivity() {
             Spacer(modifier = Modifier
                 .height(16.dp)
                 )
+
+
             Column(modifier =
             Modifier
                 .padding(top=50.dp,bottom=60.dp)) {
+
                 imageUri?.let { uri ->
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(uri)
                             .build(),
                         contentDescription = null,
+                        error = painterResource(R.drawable.restaurant),
                         contentScale = ContentScale.FillWidth,
                         modifier = Modifier
                             .padding(top = 80.dp)
@@ -107,9 +124,7 @@ class DetailActivity : ComponentActivity() {
                     )
                 }
 
-
                 Spacer(modifier = Modifier.height(8.dp))
-                // Affichage des ingrédients dans un Row
                 val ingredient = dish?.ingredients?.map { ingredient -> ingredient.name }?.joinToString(", ") ?: ""
                     Column(modifier=
                     Modifier
@@ -150,6 +165,7 @@ class DetailActivity : ComponentActivity() {
                         IconButton(
                             onClick = {  if (quantity > 0){
                                 quantity--
+                                count.value=quantity
                                 totalPrice = quantity * unitPrice}
                                       },
                             modifier = Modifier.padding(8.dp),
@@ -162,17 +178,16 @@ class DetailActivity : ComponentActivity() {
                                 tint = Color.White
                             )
                         }
-
                         Text(
                             text = quantity.toString(), // Remplacer par la quantité réelle
                             modifier = Modifier.padding(top=16.dp),
                             style = MaterialTheme.typography.bodyLarge
                         )
-
                         // Bouton pour incrémenter la quantité
                         IconButton(
                             onClick = {
                                 quantity++
+                                count.value=quantity
                                 totalPrice = quantity * unitPrice},
                             modifier = Modifier.padding(8.dp),
                             colors = IconButtonColors( contentColor = Color.White,containerColor = Color.Red,disabledContainerColor = Color.Gray, disabledContentColor = Color.Gray)
@@ -186,7 +201,7 @@ class DetailActivity : ComponentActivity() {
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
-                                text = "Prix : ${totalPrice.toString()} £",
+                                text = "Total : ${totalPrice.toString()} £",
                                 style = MaterialTheme.typography.bodyLarge.copy(
                                     color = Color.Red,
                                     fontSize = 18.sp,
@@ -202,7 +217,12 @@ class DetailActivity : ComponentActivity() {
                     .align(Alignment.CenterHorizontally)) {
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
-                        onClick = { /*TODO*/ },
+                         onClick = {
+                            if (dish != null) {
+                                Basket.current(context).add(dish,count.value , context)
+                            }
+                             Toast.makeText(context, "added to basket", Toast.LENGTH_SHORT).show()
+                        },
                         colors = ButtonColors(contentColor = Color.White, containerColor = Color.Red, disabledContainerColor = Color.Gray, disabledContentColor = Color.Gray)
                     ) {
                         Text(text = "Add Basket")

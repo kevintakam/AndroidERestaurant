@@ -112,7 +112,7 @@ fun MenuView(type: DishType) {
 }
 @Composable
 fun dishRow(dish: Dish) {
-    val context = LocalContext.current
+            val context = LocalContext.current
     //LazyColumn {
      //items(listOf(dish)) {
             Card(
@@ -131,43 +131,28 @@ fun dishRow(dish: Dish) {
                 border = BorderStroke(2.dp, Color.White)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(bottom=16.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(16.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .weight(0.8f) // Utilise 80% de la largeur
-                                .padding(end = 16.dp)
-                        )
-                        val imageUrl = dish.images.firstOrNull()
-                        val image404 = painterResource(R.drawable.restaurant)
-                        if (imageUrl != null && imageUrl.isNotEmpty()){
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(dish.images.firstOrNull())
-                                .build(),
-                            contentDescription = null,
-                            contentScale = ContentScale.FillHeight,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp) // Hauteur fixe pour l'image
-                                .clip(RoundedCornerShape(10))
-                                .padding(end = 16.dp)
-                        )}
-                        else{
-                            Box(
+
+
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(dish.images.firstOrNull())
+                                    .build(),
+                                contentDescription = null,
+                                placeholder = painterResource(R.drawable.restaurant),
+                                error = painterResource(R.drawable.restaurant),
+                                contentScale = ContentScale.FillHeight,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp) // Facultatif : Ajoute un peu de marge autour de l'image
-                                    .background(Color.Gray), // Couleur de fond pour l'image de secours
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Image(painterResource(R.drawable.restaurant),contentDescription = null)
-                            }
-                        }
+                                    .height(200.dp) // Hauteur fixe pour l'image
+                                    .clip(RoundedCornerShape(10))
+                                    .padding(end = 16.dp)
+                            )
+
                     }
                     // Conteneur pour le nom et le prix
                     Column {
@@ -183,7 +168,7 @@ fun dishRow(dish: Dish) {
                         )
                         // Prix du plat
                         Text(
-                            "${dish.prices.first().price} £",
+                            "${dish.prices.firstOrNull()?.price} £",
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
@@ -194,10 +179,6 @@ fun dishRow(dish: Dish) {
       // }
   // }
 }
-
-
-
-
 
 @Composable
     fun postData(type:DishType,category:MutableState<Category?>){
